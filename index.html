@@ -225,11 +225,23 @@
       background:#f8fafc;
     }
 
-    tbody td:last-child{
+    tbody td:not(:first-child){
       text-align:right;
       font-weight:700;
       color:#0f172a;
       width:75px;
+    }
+
+    tfoot th{
+      background:#ecfdf5;
+      color:#0f172a;
+      font-size:12px;
+      padding:8px 10px;
+      border-top:2px solid #0f766e;
+    }
+
+    tfoot th:not(:first-child){
+      text-align:right;
     }
 
     .totals{
@@ -281,32 +293,33 @@
       box-shadow:0 2px 8px rgba(0,0,0,.04);
       display:none;
     }
+
     .drop-zone{
-  border:2px dashed #94a3b8;
-  border-radius:14px;
-  padding:24px;
-  text-align:center;
-  background:#f8fafc;
-  transition:.2s;
-}
+      border:2px dashed #94a3b8;
+      border-radius:14px;
+      padding:24px;
+      text-align:center;
+      background:#f8fafc;
+      transition:.2s;
+    }
 
-.drop-zone.dragover{
-  border-color:#0f766e;
-  background:#ecfdf5;
-}
+    .drop-zone.dragover{
+      border-color:#0f766e;
+      background:#ecfdf5;
+    }
 
-.drop-zone p{
-  margin:6px 0;
-  font-size:13px;
-  color:#475569;
-}
+    .drop-zone p{
+      margin:6px 0;
+      font-size:13px;
+      color:#475569;
+    }
 
-.file-name{
-  margin-top:10px;
-  font-size:12px;
-  font-weight:700;
-  color:#0f766e;
-}
+    .file-name{
+      margin-top:10px;
+      font-size:12px;
+      font-weight:700;
+      color:#0f766e;
+    }
 
     @media (max-width:700px){
       .checkbox-grid{
@@ -316,6 +329,10 @@
       #editableTitle{
         font-size:22px;
       }
+
+      .output{
+        column-width:auto;
+      }
     }
   </style>
 </head>
@@ -324,43 +341,43 @@
 
   <h1>OBO Query Summarizer</h1>
 
-<div class="upload-box">
-  <label>Upload CSV File</label>
+  <div class="upload-box">
+    <label>Upload CSV File</label>
 
-  <div id="dropZone" class="drop-zone">
-    <p><strong>Drag and drop your CSV file here</strong></p>
-    <p>or</p>
+    <div id="dropZone" class="drop-zone">
+      <p><strong>Drag and drop your CSV file here</strong></p>
+      <p>or</p>
 
-    <button type="button" class="main-btn" onclick="document.getElementById('csvFile').click()">
-      Choose CSV File
-    </button>
+      <button type="button" class="main-btn" onclick="document.getElementById('csvFile').click()">
+        Choose CSV File
+      </button>
 
-    <input type="file" id="csvFile" accept=".csv" hidden />
+      <input type="file" id="csvFile" accept=".csv" hidden />
 
-    <p id="fileName" class="file-name">No file selected</p>
+      <p id="fileName" class="file-name">No file selected</p>
+    </div>
+
+    <div class="upload-grid">
+      <div>
+        <label for="dateColumn">Date Column</label>
+        <select id="dateColumn">
+          <option value="submission_date">Submission Date</option>
+          <option value="received_date">Received Date</option>
+          <option value="or_dates">OR Date</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="startDate">From</label>
+        <input type="date" id="startDate">
+      </div>
+
+      <div>
+        <label for="endDate">To</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
   </div>
-
-  <div class="upload-grid">
-    <div>
-      <label for="dateColumn">Date Column</label>
-      <select id="dateColumn">
-        <option value="submission_date">Submission Date</option>
-        <option value="received_date">Received Date</option>
-        <option value="or_dates">OR Date</option>
-      </select>
-    </div>
-
-    <div>
-      <label for="startDate">From</label>
-      <input type="date" id="startDate">
-    </div>
-
-    <div>
-      <label for="endDate">To</label>
-      <input type="date" id="endDate">
-    </div>
-  </div>
-</div>
 
   <div id="message" class="message"></div>
   <div id="summaryLine" class="summary-line"></div>
@@ -415,84 +432,85 @@
       "encoder_email",
       "total_or_amount",
       "or_dates",
-      "received_date"
+      "received_date",
+      "submission_type"
     ];
 
     const csvFileInput = document.getElementById("csvFile");
-const dropZone = document.getElementById("dropZone");
-const fileName = document.getElementById("fileName");
+    const dropZone = document.getElementById("dropZone");
+    const fileName = document.getElementById("fileName");
 
-csvFileInput.addEventListener("change", function(event){
-  const file = event.target.files[0];
+    csvFileInput.addEventListener("change", function(event){
+      const file = event.target.files[0];
 
-  if(file){
-    fileName.textContent = file.name;
-    handleCSVFile(file);
-  }
-});
+      if(file){
+        fileName.textContent = file.name;
+        handleCSVFile(file);
+      }
+    });
 
-dropZone.addEventListener("dragover", function(event){
-  event.preventDefault();
-  dropZone.classList.add("dragover");
-});
+    dropZone.addEventListener("dragover", function(event){
+      event.preventDefault();
+      dropZone.classList.add("dragover");
+    });
 
-dropZone.addEventListener("dragleave", function(){
-  dropZone.classList.remove("dragover");
-});
+    dropZone.addEventListener("dragleave", function(){
+      dropZone.classList.remove("dragover");
+    });
 
-dropZone.addEventListener("drop", function(event){
-  event.preventDefault();
-  dropZone.classList.remove("dragover");
+    dropZone.addEventListener("drop", function(event){
+      event.preventDefault();
+      dropZone.classList.remove("dragover");
 
-  const file = event.dataTransfer.files[0];
+      const file = event.dataTransfer.files[0];
 
-  if(!file){
-    showMessage("Please drop a CSV file.");
-    return;
-  }
+      if(!file){
+        showMessage("Please drop a CSV file.");
+        return;
+      }
 
-  if(!file.name.toLowerCase().endsWith(".csv")){
-    showMessage("Please upload a valid CSV file.");
-    return;
-  }
+      if(!file.name.toLowerCase().endsWith(".csv")){
+        showMessage("Please upload a valid CSV file.");
+        return;
+      }
 
-  fileName.textContent = file.name;
-  handleCSVFile(file);
-});
+      fileName.textContent = file.name;
+      handleCSVFile(file);
+    });
 
     function updateEditableTitle(){
-    const editableTitle = document.getElementById("editableTitle");
+      const editableTitle = document.getElementById("editableTitle");
 
-    const startDateValue = document.getElementById("startDate").value;
-    const endDateValue = document.getElementById("endDate").value;
+      const startDateValue = document.getElementById("startDate").value;
+      const endDateValue = document.getElementById("endDate").value;
 
-    if(startDateValue && endDateValue){
-      editableTitle.textContent =
-        `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} to ${formatDisplayDate(endDateValue)}`;
+      if(startDateValue && endDateValue){
+        editableTitle.textContent =
+          `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} to ${formatDisplayDate(endDateValue)}`;
+      }
+      else if(startDateValue && !endDateValue){
+        editableTitle.textContent =
+          `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} onwards`;
+      }
+      else if(!startDateValue && endDateValue){
+        editableTitle.textContent =
+          `Summary of Encoded Applications as of records until ${formatDisplayDate(endDateValue)}`;
+      }
+      else{
+        editableTitle.textContent =
+          "Summary of Encoded Applications";
+      }
     }
-    else if(startDateValue && !endDateValue){
-      editableTitle.textContent =
-        `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} onwards`;
-    }
-    else if(!startDateValue && endDateValue){
-      editableTitle.textContent =
-       `Summary of Encoded Applications as of records until ${formatDisplayDate(endDateValue)}`;
-    }
-    else{
-      editableTitle.textContent =
-        "Summary of Encoded Applications";
-    }
-  }
 
-  function formatDisplayDate(dateValue){
-  const date = new Date(dateValue);
+    function formatDisplayDate(dateValue){
+      const date = new Date(dateValue);
 
-  return date.toLocaleDateString("en-PH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
-}
+      return date.toLocaleDateString("en-PH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
 
     function showMessage(text){
       const message = document.getElementById("message");
@@ -518,50 +536,50 @@ dropZone.addEventListener("drop", function(event){
       summaryLine.style.display = "none";
     }
 
-function handleCSVFile(file){
-  hideMessage();
-  hideSummaryLine();
+    function handleCSVFile(file){
+      hideMessage();
+      hideSummaryLine();
 
-  if(!file){
-    showMessage("Please upload a CSV file.");
-    return;
-  }
+      if(!file){
+        showMessage("Please upload a CSV file.");
+        return;
+      }
 
-  if(!file.name.toLowerCase().endsWith(".csv")){
-    showMessage("Please upload a valid CSV file.");
-    return;
-  }
+      if(!file.name.toLowerCase().endsWith(".csv")){
+        showMessage("Please upload a valid CSV file.");
+        return;
+      }
 
-  const reader = new FileReader();
+      const reader = new FileReader();
 
-  reader.onload = function(e){
-    const csvText = e.target.result;
+      reader.onload = function(e){
+        const csvText = e.target.result;
 
-    csvRows = parseCSV(csvText);
+        csvRows = parseCSV(csvText);
 
-    if(csvRows.length === 0){
-      showMessage("The CSV file appears to be empty.");
-      return;
+        if(csvRows.length === 0){
+          showMessage("The CSV file appears to be empty.");
+          return;
+        }
+
+        const headers = Object.keys(csvRows[0]);
+
+        const missingColumns = requiredColumns.filter(
+          col => !headers.includes(col)
+        );
+
+        if(missingColumns.length > 0){
+          showMessage(
+            "Missing required columns: " + missingColumns.join(", ")
+          );
+          return;
+        }
+
+        applyFiltersAndGenerate();
+      };
+
+      reader.readAsText(file);
     }
-
-    const headers = Object.keys(csvRows[0]);
-
-    const missingColumns = requiredColumns.filter(
-      col => !headers.includes(col)
-    );
-
-    if(missingColumns.length > 0){
-      showMessage(
-        "Missing required columns: " + missingColumns.join(", ")
-      );
-      return;
-    }
-
-    applyFiltersAndGenerate();
-  };
-
-  reader.readAsText(file);
-}
 
     function parseCSV(text){
       const rows = [];
@@ -629,6 +647,7 @@ function handleCSVFile(file){
         showMessage("Please upload a CSV file first.");
         return;
       }
+
       updateEditableTitle();
       buildGroupedData();
       renderCheckboxes(true);
@@ -670,21 +689,59 @@ function handleCSVFile(file){
             ? row.status_name.trim()
             : "No Status";
 
+        const submissionTypeRaw =
+          row.submission_type && row.submission_type.trim()
+            ? row.submission_type.trim().toLowerCase()
+            : "";
+
+        let submissionType = "onPrem";
+
+        if(
+          submissionTypeRaw === "online" ||
+          submissionTypeRaw === "on-line"
+        ){
+          submissionType = "online";
+        }
+
+        if(
+          submissionTypeRaw === "on prem" ||
+          submissionTypeRaw === "on-prem" ||
+          submissionTypeRaw === "onprem" ||
+          submissionTypeRaw === "on premise" ||
+          submissionTypeRaw === "on-premise"
+        ){
+          submissionType = "onPrem";
+        }
+
         if(!permitMap[permitType]){
           permitMap[permitType] = {
             title: permitType,
             total: 0,
+            onlineTotal: 0,
+            onPremTotal: 0,
             statuses: {}
           };
         }
 
         permitMap[permitType].total++;
 
-        if(!permitMap[permitType].statuses[status]){
-          permitMap[permitType].statuses[status] = 0;
+        if(submissionType === "online"){
+          permitMap[permitType].onlineTotal++;
+        }
+        else{
+          permitMap[permitType].onPremTotal++;
         }
 
-        permitMap[permitType].statuses[status]++;
+        if(!permitMap[permitType].statuses[status]){
+          permitMap[permitType].statuses[status] = {
+            online: 0,
+            onPrem: 0,
+            total: 0
+          };
+        }
+
+        permitMap[permitType].statuses[status][submissionType]++;
+        permitMap[permitType].statuses[status].total++;
       });
 
       groupedData = Object.values(permitMap)
@@ -692,11 +749,15 @@ function handleCSVFile(file){
           return {
             title: category.title,
             total: category.total,
+            onlineTotal: category.onlineTotal,
+            onPremTotal: category.onPremTotal,
             statuses: Object.entries(category.statuses)
-              .map(([status, count]) => {
+              .map(([status, counts]) => {
                 return {
                   status: status,
-                  count: count
+                  online: counts.online,
+                  onPrem: counts.onPrem,
+                  total: counts.total
                 };
               })
               .sort((a, b) => a.status.localeCompare(b.status))
@@ -718,24 +779,12 @@ function handleCSVFile(file){
         return null;
       }
 
-      /*
-        If or_dates has multiple dates separated by commas,
-        this uses the first date.
-      */
       const firstDate = cleaned.split(",")[0].trim();
 
-      /*
-        Handles YYYY-MM-DD
-        Example: 2026-05-15
-      */
       if(/^\d{4}-\d{2}-\d{2}/.test(firstDate)){
         return new Date(firstDate);
       }
 
-      /*
-        Handles MM/DD/YYYY or M/D/YYYY
-        Example: 05/15/2026
-      */
       const slashMatch = firstDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
 
       if(slashMatch){
@@ -746,10 +795,6 @@ function handleCSVFile(file){
         return new Date(year, month, day);
       }
 
-      /*
-        Handles MM-DD-YYYY or M-D-YYYY
-        Example: 05-15-2026
-      */
       const dashMatch = firstDate.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/);
 
       if(dashMatch){
@@ -849,19 +894,16 @@ function handleCSVFile(file){
             const normalizedStatus = item.status.toLowerCase();
 
             if(normalizedStatus === "completed"){
-              completedCount += item.count;
+              completedCount += item.total;
             }
 
             if(normalizedStatus === "for releasing"){
-              releasingCount += item.count;
+              releasingCount += item.total;
             }
           });
 
-          const transactionCount =
-            completedCount + releasingCount;
-
-          const remainingApplications =
-            category.total - completedCount;
+          const transactionCount = completedCount + releasingCount;
+          const remainingApplications = category.total - completedCount;
 
           let rows = "";
 
@@ -869,7 +911,9 @@ function handleCSVFile(file){
             rows += `
               <tr>
                 <td>${escapeHTML(item.status)}</td>
-                <td>${item.count.toLocaleString()}</td>
+                <td>${item.online.toLocaleString()}</td>
+                <td>${item.onPrem.toLocaleString()}</td>
+                <td>${item.total.toLocaleString()}</td>
               </tr>
             `;
           });
@@ -887,13 +931,24 @@ function handleCSVFile(file){
               <thead>
                 <tr>
                   <th>Status</th>
-                  <th>Count</th>
+                  <th>Online</th>
+                  <th>On Prem</th>
+                  <th>Total</th>
                 </tr>
               </thead>
 
               <tbody>
                 ${rows}
               </tbody>
+
+              <tfoot>
+                <tr>
+                  <th>Total</th>
+                  <th>${category.onlineTotal.toLocaleString()}</th>
+                  <th>${category.onPremTotal.toLocaleString()}</th>
+                  <th>${category.total.toLocaleString()}</th>
+                </tr>
+              </tfoot>
             </table>
 
             <div class="totals">
