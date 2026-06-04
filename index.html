@@ -1317,7 +1317,8 @@
       const columnGap = 14;
       const rowGap = 14;
       const tableHeaderHeight = 32;
-      const rowHeight = 28;
+      const minRowHeight = 28;
+      const statusLineHeight = 14;
       const footerHeight = 32;
       const totalsHeight = 84;
       const titleFont = "800 28px 'Segoe UI', sans-serif";
@@ -1352,7 +1353,23 @@
           const cardTitle = `Encoded ${category.title} Applications`;
           const cardTitleLines = wrapTextLines(ctx, cardTitle, cardWidth - 40);
           const cardHeaderHeight = Math.max(48, 16 + (cardTitleLines.length * 20));
-          const cardHeight = cardHeaderHeight + tableHeaderHeight + (category.statuses.length * rowHeight) + footerHeight + totalsHeight;
+
+          const statusColW = Math.round(cardWidth * 0.56);
+          const numericColW = Math.round((cardWidth - statusColW) / 3);
+          const statusTextWidth = statusColW - 20;
+
+          ctx.font = bodyFont;
+          const rowMetrics = category.statuses.map(statusItem => {
+            const statusLines = wrapTextLines(ctx, statusItem.status, statusTextWidth);
+            const dynamicRowHeight = Math.max(minRowHeight, (statusLines.length * statusLineHeight) + 12);
+            return {
+              statusLines,
+              rowHeight: dynamicRowHeight
+            };
+          });
+
+          const totalStatusRowsHeight = rowMetrics.reduce((sum, metric) => sum + metric.rowHeight, 0);
+          const cardHeight = cardHeaderHeight + tableHeaderHeight + totalStatusRowsHeight + footerHeight + totalsHeight;
 
           let shortestColumnIndex = 0;
           for(let i = 1; i < columnHeights.length; i++){
@@ -1370,7 +1387,10 @@
             y,
             width: cardWidth,
             height: cardHeight,
-            headerHeight: cardHeaderHeight
+            headerHeight: cardHeaderHeight,
+            statusColW,
+            numericColW,
+            rowMetrics
           });
 
           columnHeights[shortestColumnIndex] += cardHeight + rowGap;
@@ -1433,6 +1453,9 @@
         const cardHeight = item.height;
         const cardHeaderHeight = item.headerHeight;
         const width = item.width;
+        const statusColW = item.statusColW;
+        const numericColW = item.numericColW;
+        const rowMetrics = item.rowMetrics;
 
         const {
           transactionCount,
@@ -1463,8 +1486,6 @@
         drawWrappedText(ctx, cardTitle, x + 20, y + 12, width - 40, 20, { align: "center" });
 
         const tableY = y + cardHeaderHeight;
-        const statusColW = Math.round(width * 0.46);
-        const numericColW = Math.round((width - statusColW) / 3);
         const colX = [
           x,
           x + statusColW,
@@ -1493,35 +1514,41 @@
         let rowY = tableY + tableHeaderHeight;
 
         category.statuses.forEach((statusItem, index) => {
+          const metric = rowMetrics[index];
+          const currentRowHeight = metric.rowHeight;
+
           if(index % 2 === 1){
             ctx.fillStyle = "#f8fafc";
-            ctx.fillRect(x, rowY, width, rowHeight);
+            ctx.fillRect(x, rowY, width, currentRowHeight);
           }
 
           ctx.strokeStyle = "#edf2f7";
           ctx.beginPath();
-          ctx.moveTo(x, rowY + rowHeight);
-          ctx.lineTo(x + width, rowY + rowHeight);
+          ctx.moveTo(x, rowY + currentRowHeight);
+          ctx.lineTo(x + width, rowY + currentRowHeight);
           ctx.stroke();
 
           ctx.fillStyle = "#1e293b";
           ctx.font = bodyFont;
-          ctx.textBaseline = "middle";
           ctx.textAlign = "left";
+          ctx.textBaseline = "top";
 
-          const statusText = statusItem.status.length > 30
-            ? statusItem.status.slice(0, 27) + "..."
-            : statusItem.status;
+          const textBlockHeight = metric.statusLines.length * statusLineHeight;
+          let statusTextY = rowY + ((currentRowHeight - textBlockHeight) / 2);
 
-          ctx.fillText(statusText, colX[0] + 10, rowY + rowHeight / 2);
+          metric.statusLines.forEach(line => {
+            ctx.fillText(line, colX[0] + 10, statusTextY);
+            statusTextY += statusLineHeight;
+          });
 
           ctx.font = bodyFontBold;
           ctx.textAlign = "right";
-          ctx.fillText(statusItem.online.toLocaleString(), colX[1] + numericColW - 10, rowY + rowHeight / 2);
-          ctx.fillText(statusItem.onPrem.toLocaleString(), colX[2] + numericColW - 10, rowY + rowHeight / 2);
-          ctx.fillText(statusItem.total.toLocaleString(), colX[3] + numericColW - 10, rowY + rowHeight / 2);
+          ctx.textBaseline = "middle";
+          ctx.fillText(statusItem.online.toLocaleString(), colX[1] + numericColW - 10, rowY + currentRowHeight / 2);
+          ctx.fillText(statusItem.onPrem.toLocaleString(), colX[2] + numericColW - 10, rowY + currentRowHeight / 2);
+          ctx.fillText(statusItem.total.toLocaleString(), colX[3] + numericColW - 10, rowY + currentRowHeight / 2);
 
-          rowY += rowHeight;
+          rowY += currentRowHeight;
         });
 
         ctx.fillStyle = totalRowBg;
