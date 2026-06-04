@@ -6,6 +6,34 @@
   <title>Encoded Applications Summary</title>
 
   <style>
+    :root{
+      --theme-primary:#2f6f2b;
+      --theme-secondary:#4f9448;
+      --theme-gradient:linear-gradient(135deg,#2f6f2b,#4f9448);
+      --theme-shadow:rgba(47,111,43,.20);
+      --total-row-bg:#ecfdf5;
+      --total-row-border:#2f6f2b;
+
+      --title-primary:var(--theme-primary);
+      --title-secondary:var(--theme-secondary);
+      --title-gradient:var(--theme-gradient);
+      --title-shadow:var(--theme-shadow);
+    }
+
+    body.mobo-theme{
+      --theme-primary:#18336f;
+      --theme-secondary:#42659e;
+      --theme-gradient:linear-gradient(135deg,#18336f,#42659e);
+      --theme-shadow:rgba(24,51,111,.20);
+      --total-row-bg:#e8f1ff;
+      --total-row-border:#42659e;
+
+      --title-primary:var(--theme-primary);
+      --title-secondary:var(--theme-secondary);
+      --title-gradient:var(--theme-gradient);
+      --title-shadow:var(--theme-shadow);
+    }
+
     *{
       box-sizing:border-box;
     }
@@ -91,7 +119,7 @@
       font-size:12px;
       font-weight:700;
       color:white;
-      background:#0f766e;
+      background:var(--theme-primary);
       transition:.2s;
     }
 
@@ -118,7 +146,7 @@
     }
 
     .checkbox-item input{
-      accent-color:#0f766e;
+      accent-color:var(--theme-primary);
       cursor:pointer;
     }
 
@@ -127,6 +155,7 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
+      align-items:center;
     }
 
     .main-btn{
@@ -137,8 +166,8 @@
       font-size:14px;
       font-weight:600;
       color:white;
-      background:linear-gradient(135deg,#0f766e,#155e75);
-      box-shadow:0 4px 10px rgba(15,118,110,.25);
+      background:var(--theme-gradient);
+      box-shadow:0 4px 10px var(--theme-shadow);
       transition:.2s;
     }
 
@@ -149,6 +178,11 @@
     .main-btn.secondary{
       background:linear-gradient(135deg,#475569,#334155);
       box-shadow:0 4px 10px rgba(51,65,85,.2);
+    }
+
+    .main-btn.export-btn{
+      background:linear-gradient(135deg,#7c3aed,#5b21b6);
+      box-shadow:0 4px 10px rgba(91,33,182,.22);
     }
 
     .title-wrapper{
@@ -192,13 +226,14 @@
     }
 
     .card-header{
-      background:linear-gradient(135deg,#0f766e,#155e75);
+      background:var(--title-gradient);
       color:white;
       padding:10px 12px;
       text-align:center;
       font-size:15px;
       font-weight:700;
       line-height:1.3;
+      box-shadow:0 2px 6px var(--title-shadow);
     }
 
     table{
@@ -233,11 +268,11 @@
     }
 
     tfoot th{
-      background:#ecfdf5;
+      background:var(--total-row-bg);
       color:#0f172a;
       font-size:12px;
       padding:8px 10px;
-      border-top:2px solid #0f766e;
+      border-top:2px solid var(--total-row-border);
     }
 
     tfoot th:not(:first-child){
@@ -269,7 +304,7 @@
     }
 
     .highlight{
-      color:#0f766e;
+      color:var(--theme-primary);
     }
 
     .message{
@@ -304,8 +339,8 @@
     }
 
     .drop-zone.dragover{
-      border-color:#0f766e;
-      background:#ecfdf5;
+      border-color:var(--theme-primary);
+      background:var(--total-row-bg);
     }
 
     .drop-zone p{
@@ -318,7 +353,71 @@
       margin-top:10px;
       font-size:12px;
       font-weight:700;
-      color:#0f766e;
+      color:var(--theme-primary);
+    }
+
+    .theme-toggle-box{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      background:white;
+      border:1px solid #d8e0ea;
+      border-radius:10px;
+      font-size:13px;
+      font-weight:700;
+      color:#0f172a;
+      box-shadow:0 1px 4px rgba(15,23,42,.04);
+    }
+
+    .theme-label{
+      min-width:42px;
+      color:var(--title-primary);
+      font-weight:800;
+    }
+
+    .theme-switch{
+      position:relative;
+      display:inline-block;
+      width:56px;
+      height:30px;
+    }
+
+    .theme-switch input{
+      opacity:0;
+      width:0;
+      height:0;
+    }
+
+    .theme-slider{
+      position:absolute;
+      cursor:pointer;
+      inset:0;
+      background:var(--theme-gradient);
+      transition:.25s;
+      border-radius:999px;
+      box-shadow:inset 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .theme-slider:before{
+      content:"";
+      position:absolute;
+      width:24px;
+      height:24px;
+      left:3px;
+      bottom:3px;
+      background:white;
+      transition:.25s;
+      border-radius:50%;
+      box-shadow:0 1px 4px rgba(0,0,0,.25);
+    }
+
+    .theme-switch input:checked + .theme-slider{
+      background:var(--theme-gradient);
+    }
+
+    .theme-switch input:checked + .theme-slider:before{
+      transform:translateX(26px);
     }
 
     @media (max-width:700px){
@@ -408,11 +507,26 @@
     <button class="main-btn secondary" onclick="resetDateFilters()">
       Clear Date Range
     </button>
+
+    <button class="main-btn export-btn" onclick="generateSummaryImage()">
+      Generate Image
+    </button>
+
+    <div class="theme-toggle-box">
+      <span>Header Theme</span>
+
+      <label class="theme-switch" title="Toggle POBO / MOBO header colors">
+        <input type="checkbox" id="headerThemeToggle">
+        <span class="theme-slider"></span>
+      </label>
+
+      <span id="headerThemeLabel" class="theme-label">POBO</span>
+    </div>
   </div>
 
   <div class="title-wrapper">
     <div id="editableTitle" contenteditable="true">
-      Summary of Encoded Applications
+      POBO Summary of Encoded Applications
     </div>
   </div>
 
@@ -421,6 +535,7 @@
   <script>
     let csvRows = [];
     let groupedData = [];
+    let currentHeaderTheme = "POBO";
 
     const requiredColumns = [
       "control_no",
@@ -439,6 +554,37 @@
     const csvFileInput = document.getElementById("csvFile");
     const dropZone = document.getElementById("dropZone");
     const fileName = document.getElementById("fileName");
+    const headerThemeToggle = document.getElementById("headerThemeToggle");
+    const headerThemeLabel = document.getElementById("headerThemeLabel");
+
+    initializeHeaderTheme();
+
+    headerThemeToggle.addEventListener("change", function(){
+      setHeaderTheme(this.checked ? "MOBO" : "POBO");
+    });
+
+    function initializeHeaderTheme(){
+      const savedTheme = localStorage.getItem("oboHeaderTheme") || "POBO";
+      setHeaderTheme(savedTheme);
+    }
+
+    function setHeaderTheme(theme){
+      const normalizedTheme = theme === "MOBO" ? "MOBO" : "POBO";
+      currentHeaderTheme = normalizedTheme;
+
+      if(normalizedTheme === "MOBO"){
+        document.body.classList.add("mobo-theme");
+        headerThemeToggle.checked = true;
+      }
+      else{
+        document.body.classList.remove("mobo-theme");
+        headerThemeToggle.checked = false;
+      }
+
+      headerThemeLabel.textContent = normalizedTheme;
+      localStorage.setItem("oboHeaderTheme", normalizedTheme);
+      updateEditableTitle();
+    }
 
     csvFileInput.addEventListener("change", function(event){
       const file = event.target.files[0];
@@ -483,22 +629,23 @@
 
       const startDateValue = document.getElementById("startDate").value;
       const endDateValue = document.getElementById("endDate").value;
+      const themePrefix = currentHeaderTheme === "MOBO" ? "MOBO" : "POBO";
 
       if(startDateValue && endDateValue){
         editableTitle.textContent =
-          `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} to ${formatDisplayDate(endDateValue)}`;
+          `${themePrefix} Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} to ${formatDisplayDate(endDateValue)}`;
       }
       else if(startDateValue && !endDateValue){
         editableTitle.textContent =
-          `Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} onwards`;
+          `${themePrefix} Summary of Encoded Applications as of ${formatDisplayDate(startDateValue)} onwards`;
       }
       else if(!startDateValue && endDateValue){
         editableTitle.textContent =
-          `Summary of Encoded Applications as of records until ${formatDisplayDate(endDateValue)}`;
+          `${themePrefix} Summary of Encoded Applications as of records until ${formatDisplayDate(endDateValue)}`;
       }
       else{
         editableTitle.textContent =
-          "Summary of Encoded Applications";
+          `${themePrefix} Summary of Encoded Applications`;
       }
     }
 
@@ -863,6 +1010,14 @@
       generateTables();
     }
 
+    function getSelectedCategories(){
+      const selectedHeaders = Array.from(
+        document.querySelectorAll('#checkboxGrid input[type="checkbox"]:checked')
+      ).map(cb => cb.value);
+
+      return groupedData.filter(category => selectedHeaders.includes(category.title));
+    }
+
     function generateTables(){
       const output = document.getElementById("output");
 
@@ -878,114 +1033,115 @@
         return;
       }
 
+      const selectedCategories = getSelectedCategories();
+
+      if(selectedCategories.length === 0){
+        showMessage("Please select at least one permit type.");
+        return;
+      }
+
       hideMessage();
 
-      const selectedHeaders = Array.from(
-        document.querySelectorAll('#checkboxGrid input[type="checkbox"]:checked')
-      ).map(cb => cb.value);
+      selectedCategories.forEach(category => {
+        let completedCount = 0;
+        let releasingCount = 0;
 
-      groupedData
-        .filter(category => selectedHeaders.includes(category.title))
-        .forEach(category => {
-          let completedCount = 0;
-          let releasingCount = 0;
+        category.statuses.forEach(item => {
+          const normalizedStatus = item.status.toLowerCase();
 
-          category.statuses.forEach(item => {
-            const normalizedStatus = item.status.toLowerCase();
+          if(normalizedStatus === "completed"){
+            completedCount += item.total;
+          }
 
-            if(normalizedStatus === "completed"){
-              completedCount += item.total;
-            }
-
-            if(normalizedStatus === "for releasing"){
-              releasingCount += item.total;
-            }
-          });
-
-          const transactionCount = completedCount + releasingCount;
-          const remainingApplications = category.total - completedCount;
-
-          let rows = "";
-
-          category.statuses.forEach(item => {
-            rows += `
-              <tr>
-                <td>${escapeHTML(item.status)}</td>
-                <td>${item.online.toLocaleString()}</td>
-                <td>${item.onPrem.toLocaleString()}</td>
-                <td>${item.total.toLocaleString()}</td>
-              </tr>
-            `;
-          });
-
-          const card = document.createElement("div");
-
-          card.className = "card";
-
-          card.innerHTML = `
-            <div class="card-header">
-              Encoded ${escapeHTML(category.title)} Applications
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Online</th>
-                  <th>On Prem</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                ${rows}
-              </tbody>
-
-              <tfoot>
-                <tr>
-                  <th>Total</th>
-                  <th>${category.onlineTotal.toLocaleString()}</th>
-                  <th>${category.onPremTotal.toLocaleString()}</th>
-                  <th>${category.total.toLocaleString()}</th>
-                </tr>
-              </tfoot>
-            </table>
-
-            <div class="totals">
-              <div class="totals-row">
-                <div class="totals-label">
-                  Total Encoded Applications
-                </div>
-
-                <div class="totals-value">
-                  ${category.total.toLocaleString()}
-                </div>
-              </div>
-
-              <div class="totals-row">
-                <div class="totals-label">
-                  Total Remaining Applications
-                </div>
-
-                <div class="totals-value">
-                  ${remainingApplications.toLocaleString()}
-                </div>
-              </div>
-
-              <div class="totals-row">
-                <div class="totals-label highlight">
-                  Count of Processed Transactions
-                </div>
-
-                <div class="totals-value highlight">
-                  ${transactionCount.toLocaleString()}
-                </div>
-              </div>
-            </div>
-          `;
-
-          output.appendChild(card);
+          if(normalizedStatus === "for releasing"){
+            releasingCount += item.total;
+          }
         });
+
+        const transactionCount = completedCount + releasingCount;
+        const remainingApplications = category.total - completedCount;
+
+        let rows = "";
+
+        category.statuses.forEach(item => {
+          rows += `
+            <tr>
+              <td>${escapeHTML(item.status)}</td>
+              <td>${item.online.toLocaleString()}</td>
+              <td>${item.onPrem.toLocaleString()}</td>
+              <td>${item.total.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+
+        const card = document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="card-header">
+            Encoded ${escapeHTML(category.title)} Applications
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Online</th>
+                <th>On Prem</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${rows}
+            </tbody>
+
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th>${category.onlineTotal.toLocaleString()}</th>
+                <th>${category.onPremTotal.toLocaleString()}</th>
+                <th>${category.total.toLocaleString()}</th>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="totals">
+            <div class="totals-row">
+              <div class="totals-label">
+                Total Encoded Applications
+              </div>
+
+              <div class="totals-value">
+                ${category.total.toLocaleString()}
+              </div>
+            </div>
+
+            <div class="totals-row">
+              <div class="totals-label">
+                Total Remaining Applications
+              </div>
+
+              <div class="totals-value">
+                ${remainingApplications.toLocaleString()}
+              </div>
+            </div>
+
+            <div class="totals-row">
+              <div class="totals-label highlight">
+                Transaction Count
+              </div>
+
+              <div class="totals-value highlight">
+                ${transactionCount.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        `;
+
+        output.appendChild(card);
+      });
     }
 
     function updateSummaryLine(){
@@ -1028,6 +1184,410 @@
       else{
         hideSummaryLine();
       }
+    }
+
+    function wrapTextLines(ctx, text, maxWidth){
+      const words = String(text).split(/\s+/);
+      const lines = [];
+      let currentLine = "";
+
+      words.forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const testWidth = ctx.measureText(testLine).width;
+
+        if(testWidth > maxWidth && currentLine){
+          lines.push(currentLine);
+          currentLine = word;
+        }
+        else{
+          currentLine = testLine;
+        }
+      });
+
+      if(currentLine){
+        lines.push(currentLine);
+      }
+
+      return lines.length ? lines : [""];
+    }
+
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, options = {}){
+      const lines = wrapTextLines(ctx, text, maxWidth);
+      const align = options.align || "left";
+
+      ctx.textAlign = align;
+      ctx.textBaseline = "top";
+
+      lines.forEach((line, index) => {
+        let drawX = x;
+
+        if(align === "center"){
+          drawX = x + maxWidth / 2;
+        }
+        else if(align === "right"){
+          drawX = x + maxWidth;
+        }
+
+        ctx.fillText(line, drawX, y + index * lineHeight);
+      });
+
+      return lines.length;
+    }
+
+    function generateSummaryImage(){
+      if(csvRows.length === 0){
+        showMessage("Please upload a CSV file first.");
+        return;
+      }
+
+      if(groupedData.length === 0){
+        showMessage("No records found for the selected date range.");
+        return;
+      }
+
+      const selectedCategories = getSelectedCategories();
+
+      if(selectedCategories.length === 0){
+        showMessage("Please select at least one permit type before generating the image.");
+        return;
+      }
+
+      hideMessage();
+
+      const titleText = document.getElementById("editableTitle").textContent.trim() || "Summary of Encoded Applications";
+      const styles = getComputedStyle(document.body);
+      const titlePrimary = styles.getPropertyValue("--theme-primary").trim() || "#2f6f2b";
+      const titleSecondary = styles.getPropertyValue("--theme-secondary").trim() || "#4f9448";
+      const totalRowBg = styles.getPropertyValue("--total-row-bg").trim() || "#ecfdf5";
+      const totalRowBorder = styles.getPropertyValue("--total-row-border").trim() || "#2f6f2b";
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const outputScale = 2;
+      const outerPadding = 16;
+      const columnGap = 14;
+      const rowGap = 14;
+      const tableHeaderHeight = 32;
+      const rowHeight = 28;
+      const footerHeight = 32;
+      const totalsHeight = 84;
+      const titleFont = "800 28px 'Segoe UI', sans-serif";
+      const sectionTitleFont = "700 16px 'Segoe UI', sans-serif";
+      const headerCellFont = "700 12px 'Segoe UI', sans-serif";
+      const bodyFont = "12px 'Segoe UI', sans-serif";
+      const bodyFontBold = "700 12px 'Segoe UI', sans-serif";
+      const smallFont = "600 12px 'Segoe UI', sans-serif";
+      const smallFontBold = "800 12px 'Segoe UI', sans-serif";
+
+      const cardCount = selectedCategories.length;
+      const preferredCardWidth =
+        cardCount === 1 ? 760 :
+        cardCount === 2 ? 620 :
+        cardCount <= 4 ? 500 :
+        420;
+
+      function buildLayout(columns){
+        const cardWidth = preferredCardWidth;
+
+        ctx.font = titleFont;
+        const titleLines = wrapTextLines(ctx, titleText, Math.max(cardWidth, (cardWidth * columns) + (columnGap * (columns - 1))) - 40);
+        const titleBlockHeight = titleLines.length * 34;
+        const titleY = 0;
+        const cardsStartY = titleY + titleBlockHeight + 16;
+
+        const placements = [];
+        const columnHeights = Array(columns).fill(cardsStartY);
+
+        selectedCategories.forEach(category => {
+          ctx.font = sectionTitleFont;
+          const cardTitle = `Encoded ${category.title} Applications`;
+          const cardTitleLines = wrapTextLines(ctx, cardTitle, cardWidth - 40);
+          const cardHeaderHeight = Math.max(48, 16 + (cardTitleLines.length * 20));
+          const cardHeight = cardHeaderHeight + tableHeaderHeight + (category.statuses.length * rowHeight) + footerHeight + totalsHeight;
+
+          let shortestColumnIndex = 0;
+          for(let i = 1; i < columnHeights.length; i++){
+            if(columnHeights[i] < columnHeights[shortestColumnIndex]){
+              shortestColumnIndex = i;
+            }
+          }
+
+          const x = shortestColumnIndex * (cardWidth + columnGap);
+          const y = columnHeights[shortestColumnIndex];
+
+          placements.push({
+            category,
+            x,
+            y,
+            width: cardWidth,
+            height: cardHeight,
+            headerHeight: cardHeaderHeight
+          });
+
+          columnHeights[shortestColumnIndex] += cardHeight + rowGap;
+        });
+
+        const cardsWidth = (cardWidth * columns) + (columnGap * (columns - 1));
+        const logicalWidth = cardsWidth;
+        const logicalHeight = Math.max(...columnHeights) - rowGap;
+        const shapeScore = Math.max(logicalWidth, logicalHeight) + (Math.abs(logicalWidth - logicalHeight) * 0.35);
+
+        return {
+          columns,
+          placements,
+          logicalWidth,
+          logicalHeight,
+          shapeScore,
+          titleBlockHeight
+        };
+      }
+
+      const maxColumns = Math.min(cardCount, 6);
+      let bestLayout = null;
+
+      for(let columns = 1; columns <= maxColumns; columns++){
+        const candidateLayout = buildLayout(columns);
+
+        if(!bestLayout || candidateLayout.shapeScore < bestLayout.shapeScore){
+          bestLayout = candidateLayout;
+        }
+      }
+
+      const logicalWidth = bestLayout.logicalWidth;
+      const logicalHeight = bestLayout.logicalHeight;
+      const targetWidth = Math.ceil(logicalWidth + (outerPadding * 2));
+      const targetHeight = Math.ceil(logicalHeight + (outerPadding * 2));
+
+      canvas.width = targetWidth * outputScale;
+      canvas.height = targetHeight * outputScale;
+      canvas.style.width = targetWidth + "px";
+      canvas.style.height = targetHeight + "px";
+      ctx.scale(outputScale, outputScale);
+
+      const offsetX = outerPadding;
+      const offsetY = outerPadding;
+
+      ctx.fillStyle = "#eef3f8";
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+
+      ctx.fillStyle = "#0f172a";
+      ctx.font = titleFont;
+      drawWrappedText(ctx, titleText, 0, 0, logicalWidth, 34, { align: "center" });
+
+      bestLayout.placements.forEach(item => {
+        const category = item.category;
+        const x = item.x;
+        const y = item.y;
+        const cardHeight = item.height;
+        const cardHeaderHeight = item.headerHeight;
+        const width = item.width;
+
+        let completedCount = 0;
+        let releasingCount = 0;
+
+        category.statuses.forEach(statusItem => {
+          const normalizedStatus = statusItem.status.toLowerCase();
+          if(normalizedStatus === "completed") completedCount += statusItem.total;
+          if(normalizedStatus === "for releasing") releasingCount += statusItem.total;
+        });
+
+        const transactionCount = completedCount + releasingCount;
+        const remainingApplications = category.total - completedCount;
+        const cardTitle = `Encoded ${category.title} Applications`;
+
+        ctx.save();
+        ctx.shadowColor = "rgba(15,23,42,.08)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "#ffffff";
+        roundRect(ctx, x, y, width, cardHeight, 16, true, false);
+        ctx.restore();
+
+        ctx.strokeStyle = "#dbe4ee";
+        ctx.lineWidth = 1;
+        roundRect(ctx, x, y, width, cardHeight, 16, false, true);
+
+        const headerGradient = ctx.createLinearGradient(x, y, x + width, y + cardHeaderHeight);
+        headerGradient.addColorStop(0, titlePrimary);
+        headerGradient.addColorStop(1, titleSecondary);
+        ctx.fillStyle = headerGradient;
+        roundTopRect(ctx, x, y, width, cardHeaderHeight, 16);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = sectionTitleFont;
+        drawWrappedText(ctx, cardTitle, x + 20, y + 12, width - 40, 20, { align: "center" });
+
+        const tableY = y + cardHeaderHeight;
+        const statusColW = Math.round(width * 0.46);
+        const numericColW = Math.round((width - statusColW) / 3);
+        const colX = [
+          x,
+          x + statusColW,
+          x + statusColW + numericColW,
+          x + statusColW + (numericColW * 2)
+        ];
+
+        ctx.fillStyle = "#dce7f5";
+        ctx.fillRect(x, tableY, width, tableHeaderHeight);
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.beginPath();
+        ctx.moveTo(x, tableY + tableHeaderHeight);
+        ctx.lineTo(x + width, tableY + tableHeaderHeight);
+        ctx.stroke();
+
+        ctx.fillStyle = "#1e293b";
+        ctx.font = headerCellFont;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        ctx.fillText("STATUS", colX[0] + 10, tableY + tableHeaderHeight / 2);
+        ctx.textAlign = "center";
+        ctx.fillText("ONLINE", colX[1] + numericColW / 2, tableY + tableHeaderHeight / 2);
+        ctx.fillText("ON PREM", colX[2] + numericColW / 2, tableY + tableHeaderHeight / 2);
+        ctx.fillText("TOTAL", colX[3] + numericColW / 2, tableY + tableHeaderHeight / 2);
+
+        let rowY = tableY + tableHeaderHeight;
+
+        category.statuses.forEach((statusItem, index) => {
+          if(index % 2 === 1){
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(x, rowY, width, rowHeight);
+          }
+
+          ctx.strokeStyle = "#edf2f7";
+          ctx.beginPath();
+          ctx.moveTo(x, rowY + rowHeight);
+          ctx.lineTo(x + width, rowY + rowHeight);
+          ctx.stroke();
+
+          ctx.fillStyle = "#1e293b";
+          ctx.font = bodyFont;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "left";
+
+          const statusText = statusItem.status.length > 30
+            ? statusItem.status.slice(0, 27) + "..."
+            : statusItem.status;
+
+          ctx.fillText(statusText, colX[0] + 10, rowY + rowHeight / 2);
+
+          ctx.font = bodyFontBold;
+          ctx.textAlign = "right";
+          ctx.fillText(statusItem.online.toLocaleString(), colX[1] + numericColW - 10, rowY + rowHeight / 2);
+          ctx.fillText(statusItem.onPrem.toLocaleString(), colX[2] + numericColW - 10, rowY + rowHeight / 2);
+          ctx.fillText(statusItem.total.toLocaleString(), colX[3] + numericColW - 10, rowY + rowHeight / 2);
+
+          rowY += rowHeight;
+        });
+
+        ctx.fillStyle = totalRowBg;
+        ctx.fillRect(x, rowY, width, footerHeight);
+        ctx.strokeStyle = totalRowBorder;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, rowY);
+        ctx.lineTo(x + width, rowY);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+
+        ctx.fillStyle = "#0f172a";
+        ctx.font = bodyFontBold;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        ctx.fillText("Total", colX[0] + 10, rowY + footerHeight / 2);
+        ctx.textAlign = "right";
+        ctx.fillText(category.onlineTotal.toLocaleString(), colX[1] + numericColW - 10, rowY + footerHeight / 2);
+        ctx.fillText(category.onPremTotal.toLocaleString(), colX[2] + numericColW - 10, rowY + footerHeight / 2);
+        ctx.fillText(category.total.toLocaleString(), colX[3] + numericColW - 10, rowY + footerHeight / 2);
+
+        const totalsY = rowY + footerHeight;
+        ctx.fillStyle = "#fafcff";
+        roundBottomRect(ctx, x, totalsY, width, totalsHeight, 16);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.beginPath();
+        ctx.moveTo(x, totalsY);
+        ctx.lineTo(x + width, totalsY);
+        ctx.stroke();
+
+        const totalRows = [
+          ["Total Encoded Applications", category.total.toLocaleString(), false],
+          ["Total Remaining Applications", remainingApplications.toLocaleString(), false],
+          ["Transaction Count", transactionCount.toLocaleString(), true]
+        ];
+
+        let totalsLineY = totalsY + 16;
+        totalRows.forEach(([label, value, highlight]) => {
+          ctx.fillStyle = highlight ? titlePrimary : "#64748b";
+          ctx.font = smallFont;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, x + 14, totalsLineY);
+
+          ctx.fillStyle = highlight ? titlePrimary : "#0f172a";
+          ctx.font = smallFontBold;
+          ctx.textAlign = "right";
+          ctx.fillText(value, x + width - 14, totalsLineY);
+          totalsLineY += 22;
+        });
+      });
+
+      ctx.restore();
+
+      const link = document.createElement("a");
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const yyyy = String(now.getFullYear());
+      const themePrefix = currentHeaderTheme === "MOBO" ? "MOBO" : "POBO";
+
+      link.download = `${themePrefix}QuerySummary${mm}${dd}${yyyy}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke){
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
+
+    function roundTopRect(ctx, x, y, width, height, radius){
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height);
+      ctx.lineTo(x, y + height);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function roundBottomRect(ctx, x, y, width, height, radius){
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + width, y);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y);
+      ctx.closePath();
+      ctx.fill();
     }
 
     function escapeHTML(value){
