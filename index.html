@@ -1035,6 +1035,50 @@
       return groupedData.filter(category => selectedHeaders.includes(category.title));
     }
 
+    function calculateCategorySummary(category){
+      let completedCount = 0;
+      let cancelledCount = 0;
+      let noticeComplianceReturnedCount = 0;
+      let releasingCount = 0;
+
+      category.statuses.forEach(item => {
+        const normalizedStatus = item.status.toLowerCase().trim();
+
+        if(normalizedStatus === "completed"){
+          completedCount += item.total;
+        }
+
+        if(normalizedStatus === "cancelled" || normalizedStatus === "canceled"){
+          cancelledCount += item.total;
+        }
+
+        if(
+          normalizedStatus === "returned to applicant (notice of compliance issued)" ||
+          normalizedStatus.includes("returned to applicant") && normalizedStatus.includes("notice of compliance issued")
+        ){
+          noticeComplianceReturnedCount += item.total;
+        }
+
+        if(normalizedStatus === "for releasing"){
+          releasingCount += item.total;
+        }
+      });
+
+      const transactionCount = completedCount + releasingCount;
+      const remainingApplications = category.total - (
+        completedCount + cancelledCount + noticeComplianceReturnedCount
+      );
+
+      return {
+        completedCount,
+        cancelledCount,
+        noticeComplianceReturnedCount,
+        releasingCount,
+        transactionCount,
+        remainingApplications
+      };
+    }
+
     function generateTables(){
       const output = document.getElementById("output");
 
@@ -1060,23 +1104,10 @@
       hideMessage();
 
       selectedCategories.forEach(category => {
-        let completedCount = 0;
-        let releasingCount = 0;
-
-        category.statuses.forEach(item => {
-          const normalizedStatus = item.status.toLowerCase();
-
-          if(normalizedStatus === "completed"){
-            completedCount += item.total;
-          }
-
-          if(normalizedStatus === "for releasing"){
-            releasingCount += item.total;
-          }
-        });
-
-        const transactionCount = completedCount + releasingCount;
-        const remainingApplications = category.total - completedCount;
+        const {
+          transactionCount,
+          remainingApplications
+        } = calculateCategorySummary(category);
 
         let rows = "";
 
@@ -1403,17 +1434,10 @@
         const cardHeaderHeight = item.headerHeight;
         const width = item.width;
 
-        let completedCount = 0;
-        let releasingCount = 0;
-
-        category.statuses.forEach(statusItem => {
-          const normalizedStatus = statusItem.status.toLowerCase();
-          if(normalizedStatus === "completed") completedCount += statusItem.total;
-          if(normalizedStatus === "for releasing") releasingCount += statusItem.total;
-        });
-
-        const transactionCount = completedCount + releasingCount;
-        const remainingApplications = category.total - completedCount;
+        const {
+          transactionCount,
+          remainingApplications
+        } = calculateCategorySummary(category);
         const cardTitle = `Encoded ${category.title} Applications`;
 
         ctx.save();
