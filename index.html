@@ -461,7 +461,7 @@
         <label for="dateColumn">Date Column</label>
         <select id="dateColumn">
           <option value="submission_date">Submission Date</option>
-          <option value="received_date">Received Date</option>
+          <option value="received_date">Received Date, if available</option>
           <option value="or_dates">OR Date</option>
         </select>
       </div>
@@ -538,17 +538,14 @@
     let currentHeaderTheme = "POBO";
 
     const requiredColumns = [
-      "control_no",
       "applicant",
       "permit_type_name",
       "status_name",
+      "submission_type",
       "submission_date",
       "encoded_by",
       "encoder_email",
-      "total_or_amount",
-      "or_dates",
-      "received_date",
-      "submission_type"
+      "total_or_amount"
     ];
 
     const csvFileInput = document.getElementById("csvFile");
@@ -702,7 +699,7 @@
       reader.onload = function(e){
         const csvText = e.target.result;
 
-        csvRows = parseCSV(csvText);
+        csvRows = normalizeCSVRows(parseCSV(csvText));
 
         if(csvRows.length === 0){
           showMessage("The CSV file appears to be empty.");
@@ -757,6 +754,26 @@
       }
 
       return rows;
+    }
+
+    function normalizeCSVRows(rows){
+      return rows.map(row => {
+        const normalizedRow = {...row};
+
+        if(!normalizedRow.control_no && normalizedRow.application_no){
+          normalizedRow.control_no = normalizedRow.application_no;
+        }
+
+        if(!normalizedRow.or_dates && normalizedRow.or_date){
+          normalizedRow.or_dates = normalizedRow.or_date;
+        }
+
+        if(!normalizedRow.received_date){
+          normalizedRow.received_date = "";
+        }
+
+        return normalizedRow;
+      });
     }
 
     function splitCSVLine(line){
